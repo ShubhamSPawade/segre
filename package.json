@@ -1,6 +1,6 @@
 {
   "name": "segre",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "A CLI tool to organize (segregate) files into categories",
   "main": "src/index.js",
   "bin": {

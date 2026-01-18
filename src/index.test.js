@@ -76,7 +76,7 @@ async function cleanupTestDir() {
 // ==================== VERSION Tests ====================
 describe('VERSION', () => {
     test('should be defined', () => {
-        expect(VERSION).toBe('1.0.2');
+        expect(VERSION).toBe('1.0.0');
     });
 });
 
@@ -867,7 +867,7 @@ describe('CLI', () => {
 
     test('should have correct version', () => {
         const program = createProgram();
-        expect(program.version()).toBe('1.0.2');
+        expect(program.version()).toBe('1.0.0');
     });
 
     test('should have all required commands', () => {

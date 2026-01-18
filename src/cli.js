@@ -9,7 +9,7 @@ const chalk = require('chalk');
 const { organizeDirectory, undoOrganize, showCategories } = require('./organizer');
 const { generateSampleConfig } = require('./config');
 
-const VERSION = '1.0.2';
+const VERSION = '1.0.0';
 
 /**
  * Create and configure CLI program
