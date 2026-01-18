@@ -1,0 +1,22 @@
+# Source control
+.git/
+.gitignore
+
+# Tests
+*.test.js
+coverage/
+jest.config.js
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dev files
+.npmignore
+*.log
+
+# Documentation kept: README.md, LICENSE

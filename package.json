@@ -1,16 +1,51 @@
 {
-  "name": "file-organiser",
+  "name": "segre",
   "version": "1.0.0",
-  "main": "organize.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "Professional CLI tool to organize (segregate) files into categories",
+  "main": "src/index.js",
+  "bin": {
+    "segre": "./bin/segre.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "scripts": {
+    "start": "node bin/segre.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "file",
+    "organizer",
+    "cli",
+    "directory",
+    "cleanup",
+    "segre",
+    "segregate",
+    "sort",
+    "files",
+    "categories",
+    "file-manager"
+  ],
+  "author": "Shubham Pawade",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shubhampawade/segre.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shubhampawade/segre/issues"
+  },
+  "homepage": "https://github.com/shubhampawade/segre#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "dependencies": {
+    "chalk": "^4.1.2",
+    "cli-progress": "^3.12.0",
     "commander": "^12.1.0",
-    "path": "^0.12.7"
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

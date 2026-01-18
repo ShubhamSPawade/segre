@@ -1,54 +1,180 @@
-# File Organizer CLI
+# Segre
 
-## 📂 Overview
-File Organizer is a CLI tool built using Node.js that automatically sorts files into categorized directories based on their file types. It helps keep your system organized efficiently.
+A professional CLI tool to organize (segregate) files into categories.
 
-## 🚀 Features
-- Automatically categorizes files (e.g., images, documents, videos, etc.).
-- Supports custom file type categories.
-- Simple command-line interface for ease of use.
+## Features
 
-## 🛠️ Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/file-organiser.git
-   cd file-organiser
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+- **Organize by Category**: Automatically sort files into folders like Images, Documents, Audio, Videos, Code, Archives, etc.
+- **Organize by Date**: Sort files into Year/Month folders based on modification date
+- **Dry Run Mode**: Preview what would happen without making changes
+- **Interactive Mode**: Confirm each file move individually
+- **Custom Config**: Define your own categories via JSON config file
+- **Ignore Patterns**: Skip files matching specific patterns
+- **Undo Support**: Revert the last organization operation
+- **Progress Bar**: Visual feedback during organization
+- **Professional Output**: Clean, professional CLI output
 
-## ▶️ Usage
-Run the following command to organize files in a specific directory:
+## Installation
+
 ```bash
-node organize.js /path/to/directory
-```
-Example:
-```bash
-node organize.js ~/Downloads
+# Install globally
+npm install -g segre
+
+# Or run locally
+npm install
+npm link
 ```
 
-## 🏗️ How It Works
-1. Scans the specified directory.
-2. Identifies file types (e.g., images, videos, documents).
-3. Moves files into corresponding categorized folders (e.g., `Images/`, `Documents/`, `Videos/`).
+## Usage
 
-## 📌 Supported File Categories
-- **Images**: `.jpg`, `.png`, `.gif`, `.bmp`, `.svg`
-- **Videos**: `.mp4`, `.mkv`, `.avi`, `.mov`
-- **Documents**: `.pdf`, `.docx`, `.xlsx`, `.pptx`
-- **Music**: `.mp3`, `.wav`, `.flac`
-- **Archives**: `.zip`, `.tar`, `.rar`
+### Basic Usage
 
-## 🛡️ Customization
-You can modify the `organize.js` file to add new categories or change sorting rules.
+```bash
+# Organize files in a directory
+segre ./my-folder
 
-## 🤝 Contributing
-Feel free to fork the repository and submit pull requests to enhance functionality.
+# Preview changes without moving files
+segre ./my-folder --dry-run
 
-## 📜 License
-This project is licensed under the MIT License.
+# Organize with verbose output
+segre ./my-folder --verbose
+```
+
+### Organize by Date
+
+```bash
+# Sort files into Year/Month folders
+segre ./my-folder --by-date
+```
+
+### Interactive Mode
+
+```bash
+# Confirm each file move
+segre ./my-folder --interactive
+```
+
+### Ignore Files
+
+```bash
+# Ignore specific patterns
+segre ./my-folder --ignore "*.log,*.tmp,node_modules"
+```
+
+### Custom Categories
+
+```bash
+# Generate a sample config file
+segre init-config
+
+# Use custom categories
+segre ./my-folder --config ./segre.config.json
+```
+
+### View Categories
+
+```bash
+# Show default categories
+segre categories
+
+# Show custom categories
+segre categories --config ./segre.config.json
+```
+
+### Undo Last Operation
+
+```bash
+# Restore files to original locations
+segre undo ./my-folder
+```
+
+## Options
+
+| Option | Alias | Description |
+|--------|-------|-------------|
+| `--config <path>` | `-c` | Path to custom categories config file (JSON) |
+| `--dry-run` | `-d` | Show what would happen without moving files |
+| `--interactive` | `-i` | Ask before moving each file |
+| `--by-date` | `-b` | Organize files by modification date (Year/Month) |
+| `--ignore <patterns>` | | Comma-separated patterns to ignore |
+| `--verbose` | `-v` | Show detailed output |
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `segre <directory>` | Organize files in directory |
+| `segre undo <directory>` | Undo last organization |
+| `segre categories` | Show file categories |
+| `segre init-config [path]` | Generate sample config file |
+
+## Default Categories
+
+- **Archives**: .zip, .tar, .gz, .rar, .7z, .bz2, .xz
+- **Audio**: .mp3, .wav, .flac, .aac, .ogg, .wma, .m4a
+- **Code**: .js, .ts, .css, .html, .py, .java, .cpp, .c, .h, .jsx, .tsx, .vue, .rb, .go, .rs, .php, .swift, .kt
+- **Documents**: .pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .txt, .rtf, .odt, .ods, .odp, .md, .csv
+- **Executables**: .exe, .msi, .dmg, .app, .deb, .rpm, .sh, .bat, .cmd
+- **Fonts**: .ttf, .otf, .woff, .woff2, .eot
+- **Images**: .jpg, .jpeg, .png, .gif, .bmp, .tiff, .svg, .webp, .ico, .raw, .psd, .ai
+- **Videos**: .mp4, .mkv, .avi, .mov, .wmv, .flv, .webm, .m4v, .mpeg, .mpg
+- **Others**: Files that don't match any category
+
+## Custom Config Example
+
+```json
+{
+  "Images": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
+  "Documents": [".pdf", ".doc", ".docx", ".txt", ".md"],
+  "Audio": [".mp3", ".wav", ".flac"],
+  "Videos": [".mp4", ".mkv", ".avi"],
+  "Code": [".js", ".ts", ".py", ".java"],
+  "Archives": [".zip", ".rar", ".7z"],
+  "MyCustomCategory": [".custom", ".myext"],
+  "Others": []
+}
+```
+
+## Project Structure
+
+```
+segre/
+├── bin/
+│   └── segre.js          # CLI entry point
+├── src/
+│   ├── index.js          # Main exports
+│   ├── categories.js     # Category definitions
+│   ├── cli.js            # CLI commands
+│   ├── config.js         # Config loading
+│   ├── logger.js         # Operation logging
+│   ├── organizer.js      # Core logic
+│   ├── utils.js          # Utility functions
+│   └── index.test.js     # Tests
+├── package.json
+└── README.md
+```
+
+## Development
+
+```bash
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run tests in watch mode
+npm run test:watch
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Author
+
+**Shubham Pawade**
 
 ---
-Developed by **Shubham Pawade**
+
+Made with ❤️ by Shubham Pawade
