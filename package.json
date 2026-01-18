@@ -1,7 +1,7 @@
 {
   "name": "segre",
-  "version": "1.0.0",
-  "description": "Professional CLI tool to organize (segregate) files into categories",
+  "version": "1.0.2",
+  "description": "A CLI tool to organize (segregate) files into categories",
   "main": "src/index.js",
   "bin": {
     "segre": "./bin/segre.js"
@@ -29,12 +29,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shubhampawade/segre.git"
+    "url": "git+https://github.com/ShubhamSPawade/segre.git"
   },
   "bugs": {
-    "url": "https://github.com/shubhampawade/segre/issues"
+    "url": "https://github.com/ShubhamSPawade/segre/issues"
   },
-  "homepage": "https://github.com/shubhampawade/segre#readme",
+  "homepage": "https://github.com/ShubhamSPawade/segre#readme",
   "engines": {
     "node": ">=14.0.0"
   },
