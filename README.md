@@ -16,11 +16,28 @@ A professional CLI tool to organize (segregate) files into categories.
 
 ## Installation
 
-```bash
-# Install globally
-npm install -g segre
+### Quick Use (No Installation Required)
 
-# Or run locally
+Run directly using npx - no installation needed:
+
+```bash
+npx segre ./my-folder
+```
+
+### Global Installation
+
+Install once and use anywhere on your system:
+
+```bash
+npm install -g segre
+```
+
+After global installation, you can use `segre` command from any directory.
+
+### Local Installation (For Development)
+
+```bash
+# Clone and install locally
 npm install
 npm link
 ```

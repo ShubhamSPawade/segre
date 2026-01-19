@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A CLI tool to organize (segregate) files into categories",
   "main": "src/index.js",
+  "preferGlobal": true,
   "bin": {
     "segre": "./bin/segre.js"
   },
