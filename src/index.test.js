@@ -76,7 +76,7 @@ async function cleanupTestDir() {
 // ==================== VERSION Tests ====================
 describe('VERSION', () => {
     test('should be defined', () => {
-        expect(VERSION).toBe('1.0.0');
+        expect(VERSION).toBe('1.0.1');
     });
 });
 
