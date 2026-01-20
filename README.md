@@ -1,6 +1,6 @@
 # Segre
 
-A professional CLI tool to organize (segregate) files into categories.
+A CLI tool to organize (segregate) files into categories.
 
 ## Features
 
