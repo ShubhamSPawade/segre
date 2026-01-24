@@ -76,7 +76,7 @@ async function cleanupTestDir() {
 // ==================== VERSION Tests ====================
 describe('VERSION', () => {
     test('should be defined', () => {
-        expect(VERSION).toBe('1.0.2');
+        expect(VERSION).toBe('1.1.0');
     });
 });
 
@@ -528,6 +528,134 @@ describe('Dry Run Mode', () => {
     });
 });
 
+// ==================== Recursive Mode Tests ====================
+describe('Recursive Mode', () => {
+    beforeEach(async () => {
+        await createTestDir();
+    });
+
+    afterEach(async () => {
+        await cleanupTestDir();
+    });
+
+    test('should organize files from subdirectories', async () => {
+        // Create nested structure
+        await fs.mkdir(path.join(testDir, 'subdir1'), { recursive: true });
+        await fs.mkdir(path.join(testDir, 'subdir2', 'nested'), { recursive: true });
+
+        // Add files at various levels
+        await fs.writeFile(path.join(testDir, 'top.jpg'), 'image');
+        await fs.writeFile(path.join(testDir, 'subdir1', 'photo.png'), 'image');
+        await fs.writeFile(path.join(testDir, 'subdir2', 'doc.pdf'), 'doc');
+        await fs.writeFile(path.join(testDir, 'subdir2', 'nested', 'song.mp3'), 'audio');
+
+        await organizeDirectory(testDir, { recursive: true });
+
+        // All files should be organized into category folders
+        expect(fsSync.existsSync(path.join(testDir, 'Images', 'top.jpg'))).toBe(true);
+        expect(fsSync.existsSync(path.join(testDir, 'Images', 'photo.png'))).toBe(true);
+        expect(fsSync.existsSync(path.join(testDir, 'Documents', 'doc.pdf'))).toBe(true);
+        expect(fsSync.existsSync(path.join(testDir, 'Audio', 'song.mp3'))).toBe(true);
+    });
+
+    test('should not organize subdirectories without recursive flag', async () => {
+        await fs.mkdir(path.join(testDir, 'subdir'), { recursive: true });
+        await fs.writeFile(path.join(testDir, 'top.jpg'), 'image');
+        await fs.writeFile(path.join(testDir, 'subdir', 'nested.png'), 'image');
+
+        await organizeDirectory(testDir, {}); // No recursive flag
+
+        // Top level file should be organized
+        expect(fsSync.existsSync(path.join(testDir, 'Images', 'top.jpg'))).toBe(true);
+        // Nested file should stay in place
+        expect(fsSync.existsSync(path.join(testDir, 'subdir', 'nested.png'))).toBe(true);
+    });
+
+    test('should clean up empty directories after recursive organization', async () => {
+        await fs.mkdir(path.join(testDir, 'empty-after'), { recursive: true });
+        await fs.writeFile(path.join(testDir, 'empty-after', 'only-file.jpg'), 'image');
+
+        await organizeDirectory(testDir, { recursive: true });
+
+        // File should be moved
+        expect(fsSync.existsSync(path.join(testDir, 'Images', 'only-file.jpg'))).toBe(true);
+        // Empty directory should be removed
+        expect(fsSync.existsSync(path.join(testDir, 'empty-after'))).toBe(false);
+    });
+
+    test('should handle deeply nested directories', async () => {
+        const deepPath = path.join(testDir, 'a', 'b', 'c', 'd');
+        await fs.mkdir(deepPath, { recursive: true });
+        await fs.writeFile(path.join(deepPath, 'deep.pdf'), 'doc');
+
+        await organizeDirectory(testDir, { recursive: true });
+
+        expect(fsSync.existsSync(path.join(testDir, 'Documents', 'deep.pdf'))).toBe(true);
+    });
+
+    test('should skip category folders during recursive scan', async () => {
+        // Pre-create Images folder with a file
+        await fs.mkdir(path.join(testDir, 'Images'), { recursive: true });
+        await fs.writeFile(path.join(testDir, 'Images', 'existing.jpg'), 'image');
+        await fs.writeFile(path.join(testDir, 'new.png'), 'image');
+
+        await organizeDirectory(testDir, { recursive: true });
+
+        // Existing file in category folder should not be moved
+        expect(fsSync.existsSync(path.join(testDir, 'Images', 'existing.jpg'))).toBe(true);
+        // New file should be organized
+        expect(fsSync.existsSync(path.join(testDir, 'Images', 'new.png'))).toBe(true);
+    });
+
+    test('should handle duplicate filenames from different subdirectories', async () => {
+        await fs.mkdir(path.join(testDir, 'dir1'), { recursive: true });
+        await fs.mkdir(path.join(testDir, 'dir2'), { recursive: true });
+        await fs.writeFile(path.join(testDir, 'dir1', 'same.jpg'), 'image1');
+        await fs.writeFile(path.join(testDir, 'dir2', 'same.jpg'), 'image2');
+
+        await organizeDirectory(testDir, { recursive: true });
+
+        // Both files should exist with unique names
+        expect(fsSync.existsSync(path.join(testDir, 'Images', 'same.jpg'))).toBe(true);
+        expect(fsSync.existsSync(path.join(testDir, 'Images', 'same(1).jpg'))).toBe(true);
+    });
+
+    test('should respect ignore patterns in recursive mode', async () => {
+        await fs.mkdir(path.join(testDir, 'subdir'), { recursive: true });
+        await fs.writeFile(path.join(testDir, 'keep.jpg'), 'image');
+        await fs.writeFile(path.join(testDir, 'subdir', 'ignore.log'), 'log');
+
+        await organizeDirectory(testDir, { recursive: true, ignore: '*.log' });
+
+        expect(fsSync.existsSync(path.join(testDir, 'Images', 'keep.jpg'))).toBe(true);
+        expect(fsSync.existsSync(path.join(testDir, 'subdir', 'ignore.log'))).toBe(true);
+    });
+
+    test('should work with dry-run in recursive mode', async () => {
+        await fs.mkdir(path.join(testDir, 'subdir'), { recursive: true });
+        await fs.writeFile(path.join(testDir, 'subdir', 'test.jpg'), 'image');
+
+        await organizeDirectory(testDir, { recursive: true, dryRun: true });
+
+        // File should not be moved
+        expect(fsSync.existsSync(path.join(testDir, 'subdir', 'test.jpg'))).toBe(true);
+        expect(fsSync.existsSync(path.join(testDir, 'Images'))).toBe(false);
+    });
+
+    test('should work with by-date in recursive mode', async () => {
+        await fs.mkdir(path.join(testDir, 'subdir'), { recursive: true });
+        await fs.writeFile(path.join(testDir, 'subdir', 'test.pdf'), 'doc');
+
+        await organizeDirectory(testDir, { recursive: true, byDate: true });
+
+        const now = new Date();
+        const year = now.getFullYear().toString();
+        const month = getMonthName(now);
+
+        expect(fsSync.existsSync(path.join(testDir, year, month, 'test.pdf'))).toBe(true);
+    });
+});
+
 // ==================== Organize by Date Tests ====================
 describe('Organize by Date', () => {
     beforeEach(async () => {
@@ -867,7 +995,7 @@ describe('CLI', () => {
 
     test('should have correct version', () => {
         const program = createProgram();
-        expect(program.version()).toBe('1.0.0');
+        expect(program.version()).toBe('1.1.0');
     });
 
     test('should have all required commands', () => {
@@ -885,6 +1013,7 @@ describe('CLI', () => {
         expect(optionFlags).toContain('--dry-run');
         expect(optionFlags).toContain('--interactive');
         expect(optionFlags).toContain('--by-date');
+        expect(optionFlags).toContain('--recursive');
         expect(optionFlags).toContain('--ignore');
         expect(optionFlags).toContain('--verbose');
     });

@@ -16,6 +16,98 @@ const { loadConfig } = require('./config');
 const { LOG_FILE_NAME, saveLog, readLog, updateLog } = require('./logger');
 
 /**
+ * Recursively collect all files from a directory
+ * @param {string} dir - Directory to scan
+ * @param {string} baseDir - Base directory for organization
+ * @param {string[]} categoryFolders - Category folder names to skip
+ * @param {string[]} ignorePatterns - Patterns to ignore
+ * @param {Object} options - CLI options
+ * @returns {Promise<Array>} Array of file objects
+ */
+async function collectFilesRecursively(dir, baseDir, categoryFolders, ignorePatterns, options) {
+    const files = [];
+    const entries = await fs.readdir(dir);
+
+    for (const entry of entries) {
+        const entryPath = path.join(dir, entry);
+
+        // Skip log file
+        if (entry === LOG_FILE_NAME) continue;
+
+        // Skip ignored patterns
+        if (shouldIgnore(entryPath, ignorePatterns)) {
+            if (options.verbose) {
+                console.log(chalk.gray(`  Ignoring: ${path.relative(baseDir, entryPath)}`));
+            }
+            continue;
+        }
+
+        // Skip category folders at base level
+        if (dir === baseDir && categoryFolders.includes(entry)) {
+            if (options.verbose) {
+                console.log(chalk.gray(`  Skipping category folder: ${entry}`));
+            }
+            continue;
+        }
+
+        const stats = await fs.stat(entryPath);
+
+        if (stats.isFile()) {
+            files.push({
+                name: entry,
+                path: entryPath,
+                stats: stats
+            });
+        } else if (stats.isDirectory() && options.recursive) {
+            // Skip category folders during recursive scan
+            if (categoryFolders.includes(entry)) {
+                if (options.verbose) {
+                    console.log(chalk.gray(`  Skipping category folder: ${path.relative(baseDir, entryPath)}`));
+                }
+                continue;
+            }
+            // Recursively collect files from subdirectories
+            const subFiles = await collectFilesRecursively(entryPath, baseDir, categoryFolders, ignorePatterns, options);
+            files.push(...subFiles);
+        }
+    }
+
+    return files;
+}
+
+/**
+ * Recursively clean up empty directories
+ * @param {string} dir - Directory to clean
+ * @param {string[]} categoryFolders - Category folders to skip
+ */
+async function cleanupEmptyDirectories(dir, categoryFolders) {
+    const entries = await fs.readdir(dir);
+
+    for (const entry of entries) {
+        const entryPath = path.join(dir, entry);
+
+        // Skip category folders
+        if (categoryFolders.includes(entry)) continue;
+
+        try {
+            const stats = await fs.stat(entryPath);
+            if (stats.isDirectory()) {
+                // Recursively clean subdirectories first
+                await cleanupEmptyDirectories(entryPath, categoryFolders);
+
+                // Check if directory is now empty
+                const contents = await fs.readdir(entryPath);
+                if (contents.length === 0) {
+                    await fs.rmdir(entryPath);
+                }
+            }
+        } catch {
+            // Directory may have been deleted already
+        }
+    }
+}
+
+/**
  * Main organize function
  * @param {string} targetDir - Directory to organize
  * @param {Object} options - CLI options
@@ -60,48 +152,54 @@ async function organizeDirectory(targetDir, options = {}) {
         // Parse ignore patterns
         const ignorePatterns = options.ignore ? options.ignore.split(',').map(p => p.trim()) : [];
 
-        // Read directory contents
-        const files = await fs.readdir(targetDir);
+        // Collect files (recursively if enabled)
+        let filesToProcess;
 
-        // Filter files (skip directories and category folders)
-        const filesToProcess = [];
+        if (options.recursive) {
+            filesToProcess = await collectFilesRecursively(targetDir, targetDir, categoryFolders, ignorePatterns, options);
+        } else {
+            // Read directory contents (non-recursive)
+            const files = await fs.readdir(targetDir);
+            filesToProcess = [];
 
-        for (const file of files) {
-            const filePath = path.join(targetDir, file);
+            for (const file of files) {
+                const filePath = path.join(targetDir, file);
 
-            // Skip log file
-            if (file === LOG_FILE_NAME) continue;
+                // Skip log file
+                if (file === LOG_FILE_NAME) continue;
 
-            // Skip ignored patterns
-            if (shouldIgnore(filePath, ignorePatterns)) {
-                if (options.verbose) {
-                    console.log(chalk.gray(`  Ignoring: ${file}`));
+                // Skip ignored patterns
+                if (shouldIgnore(filePath, ignorePatterns)) {
+                    if (options.verbose) {
+                        console.log(chalk.gray(`  Ignoring: ${file}`));
+                    }
+                    continue;
                 }
-                continue;
-            }
 
-            // Skip category folders (prevent re-organizing)
-            if (categoryFolders.includes(file)) {
-                if (options.verbose) {
-                    console.log(chalk.gray(`  Skipping category folder: ${file}`));
+                // Skip category folders (prevent re-organizing)
+                if (categoryFolders.includes(file)) {
+                    if (options.verbose) {
+                        console.log(chalk.gray(`  Skipping category folder: ${file}`));
+                    }
+                    continue;
                 }
-                continue;
-            }
 
-            const stats = await fs.stat(filePath);
+                const stats = await fs.stat(filePath);
 
-            if (stats.isFile()) {
-                filesToProcess.push({
-                    name: file,
-                    path: filePath,
-                    stats: stats
-                });
+                if (stats.isFile()) {
+                    filesToProcess.push({
+                        name: file,
+                        path: filePath,
+                        stats: stats
+                    });
+                }
             }
         }
 
+        const modeText = options.recursive ? ' (recursive)' : '';
         spinner.stopAndPersist({
             symbol: chalk.green('[OK]'),
-            text: chalk.green(`Found ${filesToProcess.length} files to organize`)
+            text: chalk.green(`Found ${filesToProcess.length} files to organize${modeText}`)
         });
 
         if (filesToProcess.length === 0) {
@@ -146,18 +244,20 @@ async function organizeDirectory(targetDir, options = {}) {
 
             // Dry run mode
             if (options.dryRun) {
+                const relativeSource = path.relative(targetDir, file.path);
                 const relativeDest = path.relative(targetDir, newFilePath);
-                console.log(chalk.blue(`  [DRY RUN] Would move: ${file.name} → ${relativeDest}`));
+                console.log(chalk.blue(`  [DRY RUN] Would move: ${relativeSource} → ${relativeDest}`));
                 continue;
             }
 
             // Interactive mode
             if (options.interactive) {
+                const relativeSource = path.relative(targetDir, file.path);
                 const relativeDest = path.relative(targetDir, path.dirname(newFilePath));
                 const { confirm } = await inquirer.prompt([{
                     type: 'confirm',
                     name: 'confirm',
-                    message: `Move ${chalk.cyan(file.name)} → ${chalk.yellow(relativeDest)}?`,
+                    message: `Move ${chalk.cyan(relativeSource)} → ${chalk.yellow(relativeDest)}?`,
                     default: true
                 }]);
 
@@ -183,13 +283,15 @@ async function organizeDirectory(targetDir, options = {}) {
 
                 if (options.verbose && !options.interactive) {
                     progressBar.stop();
-                    console.log(chalk.green(`  [OK] Moved: ${file.name} -> ${path.relative(targetDir, newFilePath)}`));
+                    const relativeSource = path.relative(targetDir, file.path);
+                    console.log(chalk.green(`  [OK] Moved: ${relativeSource} -> ${path.relative(targetDir, newFilePath)}`));
                     progressBar.start(filesToProcess.length, processedCount);
                 }
             } catch (error) {
                 /* istanbul ignore next */
                 if (options.verbose) {
-                    console.log(chalk.red(`  [ERROR] Moving ${file.name}: ${error.message}`));
+                    const relativeSource = path.relative(targetDir, file.path);
+                    console.log(chalk.red(`  [ERROR] Moving ${relativeSource}: ${error.message}`));
                 }
             }
 
@@ -205,6 +307,11 @@ async function organizeDirectory(targetDir, options = {}) {
         // Save log for undo
         if (operations.length > 0 && !options.dryRun) {
             await saveLog(targetDir, operations);
+        }
+
+        // Clean up empty directories after recursive organization
+        if (options.recursive && !options.dryRun && operations.length > 0) {
+            await cleanupEmptyDirectories(targetDir, categoryFolders);
         }
 
         // Summary

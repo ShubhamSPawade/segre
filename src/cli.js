@@ -9,7 +9,7 @@ const chalk = require('chalk');
 const { organizeDirectory, undoOrganize, showCategories } = require('./organizer');
 const { generateSampleConfig } = require('./config');
 
-const VERSION = '1.0.2'; // Updated version
+const VERSION = '1.1.0'; // Updated version
 
 /**
  * Create and configure CLI program
@@ -30,6 +30,7 @@ function createProgram() {
         .option('-d, --dry-run', 'Show what would happen without moving files')
         .option('-i, --interactive', 'Ask before moving each file')
         .option('-b, --by-date', 'Organize files by modification date (Year/Month)')
+        .option('-r, --recursive', 'Recursively organize files in subdirectories')
         .option('--ignore <patterns>', 'Comma-separated patterns to ignore (e.g., node_modules,.git,*.log)')
         .option('-v, --verbose', 'Show detailed output')
         /* istanbul ignore next */

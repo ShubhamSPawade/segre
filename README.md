@@ -7,7 +7,6 @@ A CLI tool to organize (segregate) files into categories.
 ![npm downloads](https://img.shields.io/npm/dw/segre)
 ![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
 ![License](https://img.shields.io/github/license/ShubhamSPawade/segre)
-![Build Status](https://github.com/ShubhamSPawade/segre/actions/workflows/ci.yml/badge.svg)
 ![Coverage](https://img.shields.io/codecov/c/github/ShubhamSPawade/segre)
 ![GitHub issues](https://img.shields.io/github/issues/ShubhamSPawade/segre)
 ![GitHub stars](https://img.shields.io/github/stars/ShubhamSPawade/segre?style=social)
@@ -18,6 +17,7 @@ A CLI tool to organize (segregate) files into categories.
 
 - **Organize by Category**: Automatically sort files into folders like Images, Documents, Audio, Videos, Code, Archives, etc.
 - **Organize by Date**: Sort files into Year/Month folders based on modification date
+- **Recursive Mode**: Organize files in subdirectories too (NEW!)
 - **Dry Run Mode**: Preview what would happen without making changes
 - **Interactive Mode**: Confirm each file move individually
 - **Custom Config**: Define your own categories via JSON config file
@@ -72,6 +72,16 @@ segre ./my-folder --dry-run
 
 # Organize with verbose output
 segre ./my-folder --verbose
+```
+
+### Recursive Mode
+
+```bash
+# Organize files in subdirectories too
+segre ./my-folder --recursive
+
+# Combine with other options
+segre ./my-folder --recursive --dry-run
 ```
 
 ### Organize by Date
@@ -130,6 +140,7 @@ segre undo ./my-folder
 | `--dry-run` | `-d` | Show what would happen without moving files |
 | `--interactive` | `-i` | Ask before moving each file |
 | `--by-date` | `-b` | Organize files by modification date (Year/Month) |
+| `--recursive` | `-r` | Recursively organize files in subdirectories |
 | `--ignore <patterns>` | | Comma-separated patterns to ignore |
 | `--verbose` | `-v` | Show detailed output |
 
