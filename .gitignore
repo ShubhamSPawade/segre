@@ -24,3 +24,5 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+about.txt
