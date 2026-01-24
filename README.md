@@ -2,6 +2,16 @@
 
 A CLI tool to organize (segregate) files into categories.
 
+![npm](https://img.shields.io/npm/v/segre)
+![npm downloads](https://img.shields.io/npm/dw/segre)
+![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
+![License](https://img.shields.io/github/license/ShubhamSPawade/segre)
+![GitHub issues](https://img.shields.io/github/issues/ShubhamSPawade/segre)
+![GitHub stars](https://img.shields.io/github/stars/ShubhamSPawade/segre?style=social)
+![GitHub last commit](https://img.shields.io/github/last-commit/ShubhamSPawade/segre)
+
+
+
 ## Features
 
 - **Organize by Category**: Automatically sort files into folders like Images, Documents, Audio, Videos, Code, Archives, etc.
