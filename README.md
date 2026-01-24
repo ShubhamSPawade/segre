@@ -14,6 +14,11 @@ A CLI tool to organize (segregate) files into categories.
 - **Progress Bar**: Visual feedback during organization
 - **Professional Output**: Clean, professional CLI output
 
+## Prerequisites
+
+- Node.js >= 18 (Node 20 LTS recommended)
+- npm >= 8
+
 ## Installation
 
 ### Quick Use (No Installation Required)
