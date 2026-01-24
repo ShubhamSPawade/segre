@@ -1,15 +1,17 @@
 # Segre
 
 A CLI tool to organize (segregate) files into categories.
+# Segre
 
 ![npm](https://img.shields.io/npm/v/segre)
 ![npm downloads](https://img.shields.io/npm/dw/segre)
 ![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
 ![License](https://img.shields.io/github/license/ShubhamSPawade/segre)
+![Build Status](https://github.com/ShubhamSPawade/segre/actions/workflows/ci.yml/badge.svg)
+![Coverage](https://img.shields.io/codecov/c/github/ShubhamSPawade/segre)
 ![GitHub issues](https://img.shields.io/github/issues/ShubhamSPawade/segre)
 ![GitHub stars](https://img.shields.io/github/stars/ShubhamSPawade/segre?style=social)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ShubhamSPawade/segre)
-
 
 
 ## Features
